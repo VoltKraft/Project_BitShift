@@ -35,8 +35,20 @@ Please follow the guidelines in `CODE_OF_CONDUCT.md`. Be respectful and construc
 
 ## License and Contribution Terms
 
-By contributing, you agree that your contributions are licensed under the project’s license (AGPL-3.0). See `LICENSE`.
+Before we can merge your contribution, you must agree to the project’s
+Contributor Assignment Agreement (CLA). This assigns copyright in your
+contributions to the Project Owner so the project can be relicensed in the
+future if needed.
+
+- Agreement: please read `CLA.md` and confirm your consent in the PR (see
+  template).
+- Project license: the repository is currently released under AGPL‑3.0‑only.
+  See `LICENSE`.
+- Rights: you represent that you have the necessary rights to contribute and
+  that your contribution does not infringe third‑party rights.
+
+If you cannot agree to the CLA, please do not submit contributions.
 
 ## Maintainer Availability
 
-Reviews and releases are best‑effort and may take time. Thank you for your patience and for helping improve PBS_Chunk_Checker!
+Reviews and releases are best‑effort and may take time. Thank you for your patience and for helping improve Project_BitShift!

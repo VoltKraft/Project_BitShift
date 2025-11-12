@@ -57,7 +57,7 @@ We support good‑faith security research. If you act without malicious intent, 
 
 ## Disclaimer
 
-This project is provided “as is.” To the maximum extent permitted by law, all warranties and liability are disclaimed. The warranty and liability terms in the GPL‑3.0 license also apply. Use at your own risk; validate changes before deploying to production. See `LICENSE`.
+This project is provided “as is.” To the maximum extent permitted by law, all warranties and liability are disclaimed. The warranty and liability terms in the AGPL‑3.0 license also apply. Use at your own risk; validate changes before deploying to production. See `LICENSE`.
 
 Non‑professional notice: the maintainer is not a professional application developer; this is a personal, hobby effort provided in good faith without guarantees or support obligations.
 
