@@ -33,15 +33,26 @@ This specification translates the Customer Requirements Specification (CRS) into
 
 - Runtime: Linux servers; containerized services (Docker); optional orchestration (Kubernetes).
 - Style: Service-oriented (microservices where justified) with clear module boundaries.
-- Core services (initial cut):
+- Logical components:
+  - Web frontend: browser-based UI served via an nginx web server; communicates exclusively with the middleware/API layer.
+  - Middleware / API layer: single logical entry point for the frontend; orchestrates business logic and coordinates calls to backend services, PostgreSQL, and the planner/scheduler.
+  - Backend services: domain-focused services implementing identity, leave management, scheduling, notifications, reporting, etc.
+  - Planner / scheduler: specialized component for automated planning, constraint solving, and background jobs, invoked via the middleware/API layer.
+- Core services (initial cut, refined):
   - Identity & Access (RBAC, OAuth2/SSO integration)
   - User & Org (users, teams, departments)
   - Leave Service (requests, approvals, delegation)
   - Scheduling Engine (shift rules, preferences, constraints)
   - Notifications (SMTP, push/webhook dispatch)
   - Reporting & Analytics (read models, exports)
-  - API Gateway/Edge (REST/GraphQL, rate limits, versioning)
-- Data: PostgreSQL as primary store; schema per service; migrations versioned.
+  - Middleware/API Gateway/Edge (REST/GraphQL, rate limits, versioning; bridges frontend, backend services, database, and planner)
+- Data: PostgreSQL 18 as primary relational store; schema per service; migrations versioned.
+- Deployment & network topology:
+  - Docker-based deployment with separate internal networks for `backend` and `frontend`.
+  - `db` service runs PostgreSQL 18 on the `backend` network; configuration and credentials are provided via environment files (e.g., `infrastructure/docker/.env.dev`, `infrastructure/docker/.env.example`).
+  - `frontend` service hosts the nginx-based web application on the `frontend` network. The nginx web server is not exposed directly to the host and has no published ports; it can only be reached from within the Docker network.
+  - A dedicated middleware/API component connects the `frontend` container with backend services and the PostgreSQL database on the `backend` network and provides access to the planner/scheduler.
+  - An external reverse proxy (to be selected, e.g., Traefik, nginx, Caddy, or HAProxy) terminates TLS and forwards incoming HTTP(S) traffic from the public network to the internal nginx web server in the `frontend` container; it is the only component exposed to the outside world.
 - Observability: Prometheus metrics, structured logs, Grafana dashboards; integration points for Zabbix as per monitoring requirements.
 
 ## 3. Requirement-to-Design Mapping (excerpt)
