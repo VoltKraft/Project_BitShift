@@ -1,10 +1,10 @@
-# Project BitShift — Functional Specification (FS)
+# Project_BitShift — Functional Specification (FS)
 
-Product name: Chronos — Intelligent Shift and Leave Planning System
+Product name: Chronos
 
 Status: Draft  
-Version: 0.1  
-Last Updated: 2025-11-12
+Version: 0.2  
+Last Updated: 2025-11-15
 
 ## Contents
 
@@ -26,7 +26,7 @@ This specification translates the Customer Requirements Specification (CRS) into
 ## 1. Overview
 
 - Problem statement: Manual, opaque, error-prone Excel-based planning and paper-based approvals.
-- Solution approach: Web-based, modular planning system with automated scheduling, digital approvals, and integrations; Linux-first, open source.
+- Solution approach: Web-based, modular planning system with automated scheduling, digital approvals, and integrations; Linux-first, open source (AGPLv3).
 - Scope confirmation: Aligns with CRS sections 3–8; defers non-goals to CRS if any.
 
 ## 2. Architecture Overview
@@ -42,7 +42,7 @@ This specification translates the Customer Requirements Specification (CRS) into
   - Reporting & Analytics (read models, exports)
   - API Gateway/Edge (REST/GraphQL, rate limits, versioning)
 - Data: PostgreSQL as primary store; schema per service; migrations versioned.
-- Observability: Prometheus metrics, structured logs, Grafana dashboards.
+- Observability: Prometheus metrics, structured logs, Grafana dashboards; integration points for Zabbix as per monitoring requirements.
 
 ## 3. Requirement-to-Design Mapping (excerpt)
 
@@ -101,16 +101,18 @@ Partitioning & Archival Strategy:
 
 ## 7. Quality Attributes and NFRs
 
-- Performance: ≤ 2 s P95 at 100 concurrent users (typical flows).
 - Availability: 99% (normal operations); health checks; graceful degradation.
-- Security: TLS everywhere; least-privilege RBAC; GDPR compliance; encrypted secrets.
+- Reliability: No data loss on transient network failures; transactional operations and retries for critical flows (leave requests, approvals, shift publishing).
+- Security: TLS everywhere; least-privilege RBAC; DSGVO/GDPR-compliant storage of personal data; encrypted secrets.
+- Usability & accessibility: Responsive web UI with clear role-specific views (Employee, Team Lead, HR, Admin); basic WCAG-aligned colors, contrast, and keyboard navigation.
+- Localization: UI texts externalized; default language English; German locale prepared (resource bundles, locale-specific formatting).
 - Scalability: horizontal scale via containers; stateless services where possible.
 - Testability: unit/integration/E2E tests; CI/CD pipeline; seed data for staging.
 - Maintainability: modular codebases; clear service contracts; API versioning.
+- Portability: container-based runtime on Linux; no hard dependency on non-Linux hosts.
+- Standards & formats: Where feasible, implementation and documentation follow relevant ISO standards (e.g., ISO/IEC 27001 for information security), and APIs/logs use ISO 8601 for dates and times (UTC in transport).
 
 ### 7.1 Compliance & Security
-
-The system must implement the following compliance and privacy controls. References: GDPR (esp. Arts. 5, 6, 7, 17, 20, 25, 30, 32), CCPA where applicable.
 
 1) Immutable Audit Trail (approvals/rejections/overrides/config changes)
 - Must record append-only audit events for: leave approvals/rejections, workflow overrides, role/permission changes, configuration changes (e.g., shift rules), and data exports/deletions.
@@ -124,7 +126,7 @@ The system must implement the following compliance and privacy controls. Referen
   - Hash chain validation detects any tampering in a sample audit log.
   - Authorized roles can query and export filtered audit logs; unauthorized roles are denied.
 
-2) User Data Export (GDPR Art. 20 — portability)
+2) User Data Export
 - Must provide user-initiated export of their personal data: identity profile (PII), leave history, preferences, and calendar items derived from their data.
 - Export formats: machine-readable JSON (authoritative) and CSV for tabular data; ICS for calendar events. Exports must include schema version and generation timestamp.
 - Export delivery: asynchronous job with signed, time-limited download URL; notify user on completion.
@@ -134,7 +136,7 @@ The system must implement the following compliance and privacy controls. Referen
   - Export contains expected records and fields for a test user; checksums included.
   - Access to another user’s export is denied; links expire as configured.
 
-3) User Data Deletion/Termination (GDPR Art. 17 — erasure)
+3) User Data Deletion/Termination
 - Must support account termination workflow: deactivate user (immediate login block), schedule deletion of personal data after configurable retention (default: 30 days cooling-off, then erase); maintain minimal legally required records.
 - Deletion scope: PII in User, Preferences, and personal CalendarEvents. LeaveRequest and ShiftAssignment may be retained in aggregated or pseudonymized form to preserve operational history; direct identifiers must be removed or replaced.
 - Referential behavior: FK references to deleted users must be set to NULL or replaced by pseudonymous keys; audit trail remains immutable but may be logically restricted by access policies.
@@ -159,33 +161,10 @@ The system must implement the following compliance and privacy controls. Referen
 
 - Dev: Docker Compose; Prod: Helm (optional); env vars for config; secrets via vault/K8s secrets.
 - Backups: daily automated Postgres backups; restore drill documented (RPO/RTO).
-- Monitoring: Prometheus metrics, Grafana dashboards; structured logs; alerting.
+- Monitoring: Prometheus metrics and Grafana dashboards; integration with Zabbix (e.g., via exporters/bridges) for central monitoring; structured logs; alerting.
 
 ## 9. Open Issues
 
 - Select optimization approach (rule-based, MILP/CP-SAT, or hybrid) for Scheduling Engine.
 - Push notifications mechanism (web push vs. mobile app) — scope decision.
 - CalDAV support depth vs. ICS-only for v1.
-
-## 10. Traceability
-
-Map CRS features (F1–F12) to components, APIs, and test cases. Maintain a matrix linking CRS → FS sections → Test IDs.
-
-### 10.1 Requirements Traceability Matrix
-
-Source of truth: Spreadsheet (to be created) at https://example.com/bitshift/traceability. The matrix below is mirrored in docs and must be updated in the same commit as related code/tests. Process: for any change to features, APIs, or ownership, update this table, update OpenAPI/SDL, and add/adjust tests with matching Test Case IDs.
-
-| CRS Feature | FS Section | Component(s) | API Endpoint(s) | Test Case ID | Owner |
-|---|---|---|---|---|---|
-| F1 User management | §§3, 5.1, 6, 7.1 | Identity & Access; User & Org | GET/POST/PUT/DELETE /api/v1/users; GET/POST /api/v1/roles | TC-F1-001 | IAM Team |
-| F2 Leave management | §§3, 4, 5.1, 6, 7.1 | Leave Service | GET/POST /api/v1/leaves; GET /api/v1/leaves/{id}; PATCH /api/v1/leaves/{id} | TC-F2-001 | Leave Team |
-| F3 Delegate search | §§3, 4, 5.1, 6 | Leave Service; Scheduling Engine | GET /api/v1/leaves/{id}/delegate-suggestions | TC-F3-001 | Leave Team |
-| F4 Approval workflow | §§3, 4, 5.1, 6, 7.1 | Leave Service | POST /api/v1/leaves/{id}/approve; POST /api/v1/leaves/{id}/reject; POST /api/v1/leaves/{id}/override | TC-F4-001 | Leave Team |
-| F5 Shift planning | §§3, 4, 5.1, 6 | Scheduling Engine | POST /api/v1/schedule/generate; GET /api/v1/schedule/plans | TC-F5-001 | Scheduling Team |
-| F6 Preferences | §§3, 5.1, 6, 7.1 | User & Org; Scheduling Engine | GET/PUT /api/v1/preferences; GET /api/v1/users/{id}/preferences | TC-F6-001 | IAM Team |
-| F7 External factors | §§3, 4, 5.1, 6 | Scheduling Engine; Integrations | GET/POST /api/v1/calendar/events; POST /api/v1/calendar/import-holidays; GET /api/v1/projects | TC-F7-001 | Integrations Team |
-| F8 Notifications | §§3, 4, 6 | Notifications | POST /api/v1/notifications/preview; N/A (internal dispatch) | TC-F8-001 | Notifications Team |
-| F9 Reporting | §§3, 5.1, 6 | Reporting & Analytics | GET /api/v1/reports/leave; GET /api/v1/reports/utilization; GET /api/v1/exports | TC-F9-001 | Reporting Team |
-| F10 Interfaces/API | §§2, 3, 6 | API Gateway/Edge | GET /api/v1/openapi; GraphQL /api/graphql | TC-F10-001 | Gateway Team |
-| F11 Calendar integration | §§3, 6 | Integrations | GET /api/v1/calendar/ics; CalDAV N/A (v1 optional) | TC-F11-001 | Integrations Team |
-| F12 Roles & permissions | §§2, 3, 6, 7.1 | Identity & Access | GET/POST /api/v1/roles; PUT /api/v1/users/{id}/roles | TC-F12-001 | IAM Team |

@@ -1,18 +1,18 @@
-# Project BitShift — Customer Requirements Specification (CRS)
+# Project_BitShift — Customer Requirements Specification (CRS)
 
-Product name: Chronos — Intelligent Shift and Leave Planning System
+Product name: Chronos
 
-Version: 1.0  
-Date: 2025-11-12  
+Version: 1.1  
+Date: 2025-11-15  
 Company: Intrabit GmbH
 
 ## 1. Goal Definition
 
 ### 1.1 Initial Situation
 
-Intrabit GmbH currently uses an Excel spreadsheet for shift and leave planning, which can only be edited by one person at a time. Leave requests are submitted on paper and must be manually approved by a delegate and then by the team lead or HR. This results in:
+Intrabit GmbH currently uses an Excel spreadsheet for shift and leave planning, which can only be edited by one person at a time. Leave requests are submitted on paper and must be manually approved by a delegate and then by HR. This results in:
 
-- Long processing times (several weeks)
+- Long processing times
 - Lack of transparency
 - Planning errors and double bookings
 - High manual administrative effort
@@ -20,13 +20,13 @@ Intrabit GmbH currently uses an Excel spreadsheet for shift and leave planning, 
 
 ### 1.2 Objectives
 
-Project BitShift will develop a digital, web-based tool called Chronos that:
+Project_BitShift will develop a digital, web-based tool called Chronos that:
 
 - Automates shift and leave planning
 - Digitalizes approval workflows
 - Considers employee preferences and operational requirements
 - Increases transparency and efficiency
-- Enables AI-based optimizations
+- Enables future potential for AI-based automatic optimizations
 - Runs fully on Linux and is open source
 
 ## 2. Product Use
@@ -44,9 +44,9 @@ Target groups:
 
 ### 2.2 Operating Conditions
 
-- Runs on Linux servers (Ubuntu/Debian)
+- Runs on Linux servers
 - Used via web browser (desktop and mobile)
-- Access via internal corporate network or VPN
+- Access via internal corporate network, VPN or a secure reverse proxy
 - Deployed in Docker containers (optional orchestration via Kubernetes)
 
 ## 3. Product Overview
@@ -57,7 +57,7 @@ Chronos is a browser-based, modular planning system covering the following areas
 - Leave management — digital leave requests with automatic delegate suggestion and approval workflow.
 - Notification system — automatic email or push notifications on status changes.
 - Reporting — statistics and analytics for shift times, leave, utilization.
-- Integrations — API integration with existing systems (e.g., time tracking, HR).
+- Integrations — API integration with existing systems (e.g., time tracking).
 - Security and access control — role-based access control (RBAC).
 
 ## 4. Product Functions (What the system shall do)
@@ -74,27 +74,25 @@ Chronos is a browser-based, modular planning system covering the following areas
 | F8  | Notifications       | Email or push notifications on changes. |
 | F9  | Reporting           | Clear views of leave, shifts, and absences. |
 | F10 | Interfaces/API      | REST/GraphQL APIs for external systems. |
-| F11 | Calendar integration| Export and sync via ICS/CalDAV (optional). |
+| F11 | Calendar integration| Export and sync via ICS/CalDAV. |
 | F12 | Roles & permissions | Role-based access restrictions. |
 
 ## 5. User Interface Requirements
 
-- Design: Modern web interface (React/Vue.js), responsive for desktop and mobile
+- Design: Modern web interface, responsive for desktop and mobile
 - Usability: Intuitive operation, clear role-specific views (Employee, Team Lead, HR)
 - Accessibility: Basic WCAG conformance (colors, contrast, keyboard navigation)
-- Localization: Primarily German, English version prepared
+- Localization: Primarily English, German version prepared
 
 ## 6. Non-functional Requirements
 
 - Operating system: Linux (server), browser-based (client)
-- Open source: Released under AGPLv3 or MIT
+- Open source: Released under AGPLv3
 - Architecture: Microservice architecture using Docker containers
-- Performance: Response time ≤ 2 seconds with 100 concurrent users
 - Scalability: Horizontal scaling via containerization
 - Security: TLS encryption, OAuth2/SSO support
-- Availability: 99% during normal operations
-- Backup: Daily automated backups
-- Monitoring: Integration with Prometheus / Grafana
+- Backup: scheduled automated database backups
+- Monitoring: Integration with Zabbix
 - Maintainability: Logical separation of backend, frontend, and database
 - Testability: Automated tests and a CI/CD pipeline
 
@@ -108,7 +106,7 @@ Chronos is a browser-based, modular planning system covering the following areas
 ## 8. Interface Requirements
 
 - REST/GraphQL API for the frontend and external applications
-- LDAP/SSO integration with existing user directory
+- SSO integration with existing user directory
 - SMTP for email notifications
 - ICS/CalDAV (optional) for calendar integration
 - Webhooks for external triggers and automations
@@ -117,9 +115,11 @@ Chronos is a browser-based, modular planning system covering the following areas
 
 - Reliability: No data loss on network failures
 - Usability: Low learning curve, simple navigation
-- Security: GDPR-compliant storage of personal data
+- Security: DSGVO/GDPR-compliant storage of personal data
 - Portability: Runs on Linux systems, container-based
-- Maintainability: Modular structure, easy updates via Docker
+- Maintainability: Modular structure, easy updates via Docker or Podman
+- Standards: Implementation and documentation shall follow relevant ISO
+  standards (e.g., ISO/IEC 27001 for information security, ISO 8601 for date and time formats).
 
 ## 10. Acceptance Criteria
 
@@ -140,20 +140,3 @@ The project is considered successfully delivered when:
 - Documentation (installation guide, API documentation, user manual)
 - Sample dataset (test environment)
 - CI/CD pipeline definition
-
-## 12. Timeline (High-level Plan)
-
-- Analysis & Concept: 2–3 weeks — Requirements, CRS & Functional Spec
-- Architecture & Design: 3 weeks — Data model, UI prototype
-- MVP Development: 8–10 weeks — Core features, database, web UI
-- Testing & Optimization: 3 weeks — Functionality, security, performance
-- Rollout & Training: 2 weeks — Deployment, onboarding, handover
-- Maintenance / Evolution: ongoing — Feature updates, support
-
-## 13. Appendix
-
-- Project name: BitShift
-- Product name: Chronos
-- Company: Intrabit GmbH
-- Version: 1.0
-- Date: 12 November 2025
