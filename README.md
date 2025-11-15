@@ -128,10 +128,8 @@ cd Project_BitShift
 ## 💬 Contact & Community
 
 Issues and feature requests are welcome via GitHub Issues.
-Pull Requests are accepted once the CLA is signed.
+Pull Requests are accepted once the [`CLA.md`](./CLA.md)  is accepted.
 
-Further communication channels (Discussions, Matrix, Discord, etc.)
-may be added later.
 
 ---
 
