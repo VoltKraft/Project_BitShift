@@ -2,7 +2,7 @@
 
 Product name: Chronos
 
-Version: 1.1  
+Version: 1.2  
 Date: 2025-11-15  
 Company: Intrabit GmbH
 
@@ -22,7 +22,7 @@ Intrabit GmbH currently uses an Excel spreadsheet for shift and leave planning, 
 
 Project_BitShift will develop a digital, web-based tool called Chronos that:
 
-- Automates shift and leave planning
+- Automates shift, leave, and sickness planning
 - Digitalizes approval workflows
 - Considers employee preferences and operational requirements
 - Increases transparency and efficiency
@@ -55,6 +55,7 @@ Chronos is a browser-based, modular planning system covering the following areas
 
 - Shift planning — automatic creation of early and late shifts considering employee preferences, projects, customer service hours, school schedules, and public holidays.
 - Leave management — digital leave requests with automatic delegate suggestion and approval workflow.
+- Sickness & absence management — recording employee sickness periods (including short-term/spontaneous sickness), managing required documentation, and ensuring suitable substitutes are assigned.
 - Notification system — automatic email or push notifications on status changes.
 - Reporting — statistics and analytics for shift times, leave, utilization.
 - Integrations — API integration with existing systems (e.g., time tracking).
@@ -76,6 +77,9 @@ Chronos is a browser-based, modular planning system covering the following areas
 | F10 | Interfaces/API      | REST/GraphQL APIs for external systems. |
 | F11 | Calendar integration| Export and sync via ICS/CalDAV. |
 | F12 | Roles & permissions | Role-based access restrictions. |
+| F13 | Sickness recording  | Record sickness periods for employees, including short-term/spontaneous sickness, with basic documentation (e.g., start/end dates, certificate presence). |
+| F14 | Sickness substitution | Automatically identify and assign substitutes for shifts affected by sickness, considering skills, availability, and workload. |
+| F15 | Sickness reporting  | Provide overviews of sickness days per employee/team and time period (e.g., month, year) for HR and management. |
 
 ## 5. User Interface Requirements
 
@@ -99,7 +103,7 @@ Chronos is a browser-based, modular planning system covering the following areas
 ## 7. Data Requirements
 
 - Relational database (PostgreSQL preferred)
-- Data models: employees, teams, departments, shifts, leave, delegates, projects
+- Data models: employees, teams, departments, shifts, leave, sickness/absences, delegates, projects
 - Data integrity via constraints and validations
 - Export functions (CSV, Excel, PDF)
 
@@ -128,6 +132,7 @@ The project is considered successfully delivered when:
 - Shift and leave planning is fully digital and automated.
 - All user roles (Employee, Team Lead, HR, Admin) are usable.
 - Leave requests can be submitted and approved digitally.
+- Employee sickness (including short-term/spontaneous sickness) can be recorded, documented on a period basis, and reflected in planning and reporting.
 - Early/late shifts can be scheduled automatically.
 - Preferences and external factors (projects, holidays, school schedules) are considered.
 - The system runs stably on Linux in a Docker-based deployment.
