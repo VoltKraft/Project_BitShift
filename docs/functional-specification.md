@@ -14,9 +14,12 @@ Last Updated: 2025-11-15
 - 4. Detailed Flows
 - 5. Data Model
 - 6. Interfaces
+- 6.1 OpenAPI-First API Contracts
 - 7. Quality Attributes and NFRs
   - 7.1 Compliance & Security
 - 8. Deployment & Operations
+- 8.1 12-Factor Application Style (How we apply it)
+- 8.2 Contributor Checklist (12-Factor)
 - 9. Open Issues
 - 10. Traceability
   - 10.1 Requirements Traceability Matrix
@@ -114,6 +117,20 @@ Partitioning & Archival Strategy:
 - ICS/CalDAV (optional) for calendar sync; ICS export baseline.
 - Webhooks for external triggers and automations.
 
+### 6.1 OpenAPI-First API Contracts
+
+Chronos follows an API-first approach: the OpenAPI specification is the source of truth for HTTP APIs.
+
+- Spec ownership: each service owns and maintains its OpenAPI spec; the middleware/API gateway aggregates or proxies them.
+- Spec location (convention): `docs/api/openapi/<service>/openapi.yaml` (one spec per service, versioned with code).
+- Viewing: use any OpenAPI viewer (Swagger UI, Redoc) or editor preview to render the spec.
+- Validation/linting (optional): run a linter before changes are merged.
+
+
+Contributor guidance:
+- Update the spec first (or alongside) any endpoint change; keep request/response schemas in sync with implementation.
+- Changes that break compatibility must bump the API version and be called out in release notes.
+
 ## 7. Quality Attributes and NFRs
 
 - Availability: 99% (normal operations); health checks; graceful degradation.
@@ -177,6 +194,24 @@ Partitioning & Archival Strategy:
 - Dev: Docker Compose; Prod: Helm (optional); env vars for config; secrets via vault/K8s secrets.
 - Backups: daily automated Postgres backups; restore drill documented (RPO/RTO).
 - Monitoring: Prometheus metrics and Grafana dashboards; integration with Zabbix (e.g., via exporters/bridges) for central monitoring; structured logs; alerting.
+
+### 8.1 12-Factor Application Style (How we apply it)
+
+Chronos aims to follow 12-factor principles to keep services portable, testable, and operable across environments.
+
+- Configuration is provided via environment variables; local defaults can use `.env` files, but secrets do not live in the repo.
+- Services are stateless; state lives in PostgreSQL or external backing services (e.g., SMTP, object storage, queues).
+- Backing services are treated as attached resources and are reachable via env-configured URLs/credentials.
+- Logs are written to stdout/stderr as structured events for centralized collection and analysis.
+- Build/release/run are separated: build immutable container images, release with env-specific config, run the same image in all environments.
+
+### 8.2 Contributor Checklist (12-Factor)
+
+- Use environment variables for all runtime configuration; do not hard-code credentials or endpoints.
+- Keep services stateless; persist state in backing services, not local files.
+- Emit structured logs to stdout/stderr; avoid file-based logging.
+- Treat databases, SMTP, and external APIs as attached resources configured by env vars.
+- Ensure builds are reproducible and releases only change configuration, not code.
 
 ## 9. Open Issues
 

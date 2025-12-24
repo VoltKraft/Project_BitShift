@@ -36,7 +36,8 @@ Project documentation is kept in the `docs/` directory:
   `docs/customer-requirements-specification.md`
 
 - **Functional Specification**  
-  `docs/functional-specification.md`
+  `docs/functional-specification.md`  
+  Key sections: [Interfaces & OpenAPI](docs/functional-specification.md#6-interfaces) · [Deployment & 12-Factor](docs/functional-specification.md#8-deployment--operations)
 
 More design and architecture documents will follow as the project grows.
 
