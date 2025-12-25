@@ -55,8 +55,8 @@ Phase 1 runs as a small set of containers: reverse-proxy, frontend, middleware/a
 
 ```mermaid
 flowchart LR
-  Client -->|HTTPS| RP
-  RP -->|HTTP| FE
+  Client -->|HTTPS /api/*| RP
+  RP -->|HTTP| FE -->|HTTP /api/*| API
   RP -->|HTTP /api/*| API -->|SQL| DB
   API -.->|job trigger| Worker -->|SQL| DB
 ```
