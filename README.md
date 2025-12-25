@@ -39,22 +39,29 @@ Project documentation is kept in the `docs/` directory:
   `docs/functional-specification.md`  
   Key sections: [Interfaces & OpenAPI](docs/functional-specification.md#6-interfaces) · [Deployment & 12-Factor](docs/functional-specification.md#8-deployment--operations)
 
+- **Architecture (Phase 1)**  
+  `docs/architecture.md`
+
+- **Authentication (Phase 1)**  
+  `docs/authentication.md`
+
 More design and architecture documents will follow as the project grows.
 
 ---
 
-## 🏗 Architecture (High-Level)
+## 🏗 Architecture Overview (Phase 1)
 
-Chronos is built as a modular system consisting of:
+Phase 1 runs as a small set of containers: reverse-proxy, frontend, middleware/api, scheduler/worker, and Postgres. The API is OpenAPI-first and authentication uses session cookies (internal users only).
 
-- **Frontend**: Nginx based  
-- **Backend**: API-driven service layer  
-- **Database**: PostgreSQL  
-- **Reverse Proxy**: framework TBD  
-- **Containerized deployment**: Docker (Kubernetes-ready)  
-- **Fully open source stack**, optimized for maintainability & extensibility
+```mermaid
+flowchart LR
+  Client -->|HTTPS| RP
+  RP -->|HTTP| FE
+  RP -->|HTTP /api/*| API -->|SQL| DB
+  API -.->|job trigger| Worker -->|SQL| DB
+```
 
-*(This section can be expanded once implementation details are finalized.)*
+See `docs/architecture.md` and `docs/authentication.md` for details.
 
 ---
 
