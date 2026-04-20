@@ -1,4 +1,4 @@
-### Project_BitShift – Chronos  
+### Chronos  
 ### Intelligent Shift & Vacation Planning System
 
 [![License: AGPL-3.0-only](https://img.shields.io/badge/License-AGPL--3.0--only-blue.svg)](./LICENSE)
@@ -10,7 +10,7 @@
 
 ## 🧭 Overview
 
-**Chronos** (Project_BitShift) is a modern, web-based planning and scheduling  
+**Chronos** is a modern, web-based planning and scheduling  
 system designed as a replacement for:
 
 - manual Excel-based duty planning  
@@ -70,8 +70,8 @@ See `docs/architecture.md` and `docs/authentication.md` for details.
 Phase 1 runs as a single `docker compose` stack. Dev defaults are committed in `infrastructure/docker/.env.dev`; production secrets live in `infrastructure/docker/.env.prod` which is **gitignored**.
 
 ```bash
-git clone https://github.com/VoltKraft/Project_BitShift.git
-cd Project_BitShift/infrastructure/docker
+git clone https://github.com/VoltKraft/Chronos.git
+cd Chronos/infrastructure/docker
 
 # Build + start all five services (Traefik, frontend, api, worker, db)
 ./up.sh up --build

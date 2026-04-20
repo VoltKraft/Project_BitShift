@@ -1,6 +1,4 @@
-# Project_BitShift — Functional Specification (FS)
-
-Product name: Chronos
+# Chronos — Functional Specification (FS)
 
 Status: Draft  
 Version: 0.2  

@@ -1,6 +1,6 @@
 # Architecture (Phase 1)
 
-This document describes the current Phase-1 container/service architecture for Chronos (Project_BitShift). It focuses on internal authentication (no OIDC yet) and the job-based planning workflow. See [authentication.md](authentication.md) for the detailed login flow.
+This document describes the current Phase-1 container/service architecture for Chronos. It focuses on internal authentication (no OIDC yet) and the job-based planning workflow. See [authentication.md](authentication.md) for the detailed login flow.
 
 ## Current State (Phase 1)
 

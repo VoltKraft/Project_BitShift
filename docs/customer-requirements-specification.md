@@ -1,6 +1,4 @@
-# Project_BitShift — Customer Requirements Specification (CRS)
-
-Product name: Chronos
+# Chronos — Customer Requirements Specification (CRS)
 
 Version: 1.2  
 Date: 2025-11-15  
@@ -20,7 +18,7 @@ Intrabit GmbH currently uses an Excel spreadsheet for shift and leave planning, 
 
 ### 1.2 Objectives
 
-Project_BitShift will develop a digital, web-based tool called Chronos that:
+Chronos is a digital, web-based tool that:
 
 - Automates shift, leave, and sickness planning
 - Digitalizes approval workflows

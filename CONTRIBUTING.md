@@ -51,4 +51,4 @@ If you cannot agree to the CLA, please do not submit contributions.
 
 ## Maintainer Availability
 
-Reviews and releases are best‑effort and may take time. Thank you for your patience and for helping improve Project_BitShift!
+Reviews and releases are best‑effort and may take time. Thank you for your patience and for helping improve Chronos!
