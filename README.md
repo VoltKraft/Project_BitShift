@@ -65,6 +65,31 @@ See `docs/architecture.md` and `docs/authentication.md` for details.
 
 ---
 
+## 🔧 Development Setup
+
+Phase 1 runs as a single `docker compose` stack. Dev defaults are committed in `infrastructure/docker/.env.dev`; production secrets live in `infrastructure/docker/.env.prod` which is **gitignored**.
+
+```bash
+git clone https://github.com/VoltKraft/Project_BitShift.git
+cd Project_BitShift/infrastructure/docker
+
+# Build + start all five services (Traefik, frontend, api, worker, db)
+./up.sh up --build
+
+# Create the first admin (prompted for password)
+docker compose -f compose.dev.yaml --env-file .env.dev exec api \
+  python -m app.cli create-admin --email admin@chronos.local
+
+# Verify
+curl -i http://localhost/healthz
+```
+
+Once the stack is up, the SPA is at <http://localhost/>. Traefik routes `/api/*`, `/auth/*`, `/healthz`, `/readyz` to the API; everything else goes to the frontend.
+
+For the full inventory of containers, images, and endpoints see [`docs/architecture.md`](docs/architecture.md#implementation-status-phase-1).
+
+---
+
 ## 👥 Contributing & Contributor License Agreement (CLA)
 
 Contributions are welcome and encouraged!
@@ -121,16 +146,6 @@ For full license text, see:
 
 *(Roadmap will move into GitHub Projects later.)*
 
----
-
-## 🔧 Development Setup (short version)
-
-> A complete setup guide will be published later.
-
-```bash
-git clone https://github.com/VoltKraft/Project_BitShift.git
-cd Project_BitShift
-```
 ---
 
 ## 💬 Contact & Community

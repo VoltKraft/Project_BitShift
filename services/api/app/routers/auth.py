@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -12,13 +12,13 @@ router = APIRouter(tags=["auth"])
 
 
 class LoginRequest(BaseModel):
-    username: EmailStr
+    username: str
     password: str
 
 
 class LoginResponse(BaseModel):
     user_id: str
-    email: EmailStr
+    email: str
     role: str
 
 

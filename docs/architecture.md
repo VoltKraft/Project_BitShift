@@ -113,6 +113,42 @@ JOB_POLL_INTERVAL=5s
 API_BASE_PATH=/api
 ```
 
+## Implementation Status (Phase 1)
+
+Concrete tech picks as of the current commit:
+
+| Container | Image / stack | Notes |
+| --- | --- | --- |
+| reverse-proxy | Traefik v3.2 | **File provider** (no Docker socket), static route config in `infrastructure/docker/traefik/traefik.yaml`, per-env dynamic routes in `traefik/dynamic.dev/` and `traefik/dynamic.prod/`. |
+| frontend | `nginx:1.27-alpine` serving a Vite-built React 18 + TypeScript SPA (React Router, `@xyflow/react` for the workflow canvas). | Multi-stage build in `services/frontend/Dockerfile`. |
+| middleware/api | `python:3.12-slim` + FastAPI + SQLAlchemy 2 + Alembic | Argon2id password hashing, `itsdangerous`-signed session cookies (HttpOnly, SameSite=Lax). Migrations run on container start. |
+| scheduler/worker | `python:3.12-slim` polling skeleton | Jobs table not yet modeled; polling `SELECT 1` as a heartbeat. |
+| db | `postgres:18` | Volume mounted at `/var/lib/postgresql` (PG 18 layout). |
+
+### Implemented endpoints
+
+| Method | Path | Auth | Purpose |
+| --- | --- | --- | --- |
+| GET | `/healthz` | public | Liveness |
+| GET | `/readyz` | public | Readiness (runs `SELECT 1`) |
+| POST | `/auth/login` | public | Create session cookie |
+| POST | `/auth/logout` | public | Clear session |
+| GET | `/auth/me` | session | Current user |
+| GET | `/api/workflows` | session | List active workflows |
+| POST | `/api/workflows` | session | Create workflow (stores React Flow `{nodes, edges}` as JSONB) |
+| GET | `/api/workflows/{id}` | session | Fetch workflow |
+| PUT | `/api/workflows/{id}` | session | Update; bumps `version` |
+| DELETE | `/api/workflows/{id}` | session | Soft delete |
+
+### Admin bootstrap
+
+The first admin is created via an in-container CLI (no public signup):
+
+```bash
+docker compose -f compose.dev.yaml --env-file .env.dev exec api \
+  python -m app.cli create-admin --email admin@chronos.local
+```
+
 ## Planned Later (OIDC/SSO)
 
 - Replace internal login with an OIDC identity provider.

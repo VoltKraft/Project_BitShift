@@ -1,0 +1,65 @@
+# ---------------------------------------------------------------------------
+# Secrets — never commit. .env.dev is safe (dev defaults); everything else
+# holding credentials must stay local.
+# ---------------------------------------------------------------------------
+infrastructure/docker/.env
+infrastructure/docker/.env.prod
+infrastructure/docker/.env.local
+infrastructure/docker/.env.*.local
+
+# Credentials / keys / certs anywhere in the tree
+*.pem
+*.key
+*.pfx
+*.p12
+*.crt
+*.cer
+*.der
+**/secrets/
+**/credentials/
+**/*.secret
+**/*.secrets
+id_rsa
+id_ed25519
+*.kubeconfig
+
+# Local-only env overrides at the repo root
+/.env
+/.env.local
+
+# ---------------------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# ---------------------------------------------------------------------------
+# Node / Vite
+# ---------------------------------------------------------------------------
+node_modules/
+dist/
+.vite/
+*.log
+
+# ---------------------------------------------------------------------------
+# Local DB dumps
+# ---------------------------------------------------------------------------
+*.sqlite
+*.sqlite3
+*.db
+
+# ---------------------------------------------------------------------------
+# OS / editor
+# ---------------------------------------------------------------------------
+.DS_Store
+.idea/
+.vscode/
+Thumbs.db

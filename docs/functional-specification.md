@@ -52,7 +52,7 @@ This specification translates the Customer Requirements Specification (CRS) into
 - Data: PostgreSQL 18 as primary relational store; schema per service; migrations versioned.
 - Deployment & network topology:
   - Docker-based deployment with separate internal networks for `backend` and `frontend`.
-  - `db` service runs PostgreSQL 18 on the `backend` network; configuration and credentials are provided via environment files (e.g., `infrastructure/docker/.env.dev`, `infrastructure/docker/.env.example`).
+  - `db` service runs PostgreSQL 18 on the `backend` network; configuration and credentials are provided via environment files (`infrastructure/docker/.env.dev` for local development, `infrastructure/docker/.env.prod` for production; the prod file is gitignored and holds real secrets).
   - `frontend` service hosts the nginx-based web application on the `frontend` network. The nginx web server is not exposed directly to the host and has no published ports; it can only be reached from within the Docker network.
   - A dedicated middleware/API component connects the `frontend` container with backend services and the PostgreSQL database on the `backend` network and provides access to the planner/scheduler.
   - An external reverse proxy (to be selected, e.g., Traefik, nginx, Caddy, or HAProxy) terminates TLS and forwards incoming HTTP(S) traffic from the public network to the internal nginx web server in the `frontend` container; it is the only component exposed to the outside world.

@@ -24,7 +24,8 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
-      - chronos_db_dev:/var/lib/postgresql/data
+      # Postgres 18+ expects the mount at /var/lib/postgresql; data lands in /<major>/docker/.
+      - chronos_db_dev:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
@@ -53,12 +54,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=chronos_frontend"
-      - "traefik.http.routers.chronos-api.rule=Host(`${PUBLIC_HOST}`) && (PathPrefix(`/api`) || PathPrefix(`/auth`))"
-      - "traefik.http.routers.chronos-api.entrypoints=web"
-      - "traefik.http.services.chronos-api.loadbalancer.server.port=8000"
     restart: unless-stopped
 
   worker:
@@ -88,13 +83,6 @@ services:
       - frontend
     depends_on:
       - api
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=chronos_frontend"
-      - "traefik.http.routers.chronos-fe.rule=Host(`${PUBLIC_HOST}`)"
-      - "traefik.http.routers.chronos-fe.entrypoints=web"
-      - "traefik.http.routers.chronos-fe.priority=1"
-      - "traefik.http.services.chronos-fe.loadbalancer.server.port=80"
     restart: unless-stopped
 
   reverse-proxy:
@@ -106,6 +94,6 @@ services:
       - "80:80"
       - "127.0.0.1:8080:8080"  # Traefik dashboard (dev only)
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik/traefik.yaml:/etc/traefik/traefik.yaml:ro
+      - ./traefik/dynamic.dev:/etc/traefik/dynamic:ro
     restart: unless-stopped

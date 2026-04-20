@@ -1,0 +1,31 @@
+# Prod routing — HTTPS on entrypoint "websecure", TLS enabled.
+# NOTE: Add `Host(...)` to both rules before going live to reject traffic with
+# arbitrary Host headers, e.g.:
+#   rule: "Host(`shifts.example.com`) && (PathPrefix(`/api`) || PathPrefix(`/auth`))"
+# TLS certs must be provisioned via a cert resolver (ACME) or static files —
+# configure under tls.certificates / tls.stores in this directory.
+http:
+  routers:
+    chronos-api:
+      rule: "PathPrefix(`/api`) || PathPrefix(`/auth`) || Path(`/healthz`) || Path(`/readyz`)"
+      entryPoints:
+        - websecure
+      service: chronos-api
+      priority: 10
+      tls: {}
+    chronos-fe:
+      rule: "PathPrefix(`/`)"
+      entryPoints:
+        - websecure
+      service: chronos-fe
+      priority: 1
+      tls: {}
+  services:
+    chronos-api:
+      loadBalancer:
+        servers:
+          - url: "http://api:8000"
+    chronos-fe:
+      loadBalancer:
+        servers:
+          - url: "http://frontend:80"

@@ -1,0 +1,25 @@
+# Dev routing — PathPrefix-based, plain HTTP on entrypoint "web".
+# Priority: api wins over fe for /api and /auth because 10 > 1.
+http:
+  routers:
+    chronos-api:
+      rule: "PathPrefix(`/api`) || PathPrefix(`/auth`) || Path(`/healthz`) || Path(`/readyz`)"
+      entryPoints:
+        - web
+      service: chronos-api
+      priority: 10
+    chronos-fe:
+      rule: "PathPrefix(`/`)"
+      entryPoints:
+        - web
+      service: chronos-fe
+      priority: 1
+  services:
+    chronos-api:
+      loadBalancer:
+        servers:
+          - url: "http://api:8000"
+    chronos-fe:
+      loadBalancer:
+        servers:
+          - url: "http://frontend:80"
