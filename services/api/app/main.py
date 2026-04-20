@@ -4,11 +4,30 @@ from fastapi import FastAPI
 from starlette.middleware.sessions import SessionMiddleware
 
 from app.config import settings
-from app.routers import auth, health, workflows
+from app.routers import (
+    audit,
+    auth,
+    calendar,
+    delegates,
+    exports,
+    health,
+    leave,
+    organization,
+    preferences,
+    projects,
+    reports,
+    shifts,
+    users,
+    workflows,
+)
 
 logging.basicConfig(level=settings.log_level.upper())
 
-app = FastAPI(title="Chronos API", version="0.1.0")
+app = FastAPI(
+    title="Chronos API",
+    version="0.2.0",
+    description="Shift, leave, and sickness planning — FS Phase 1 implementation.",
+)
 
 app.add_middleware(
     SessionMiddleware,
@@ -19,6 +38,20 @@ app.add_middleware(
     https_only=settings.cookie_secure,
 )
 
-app.include_router(health.router)
-app.include_router(auth.router)
-app.include_router(workflows.router)
+for router in (
+    health.router,
+    auth.router,
+    users.router,
+    exports.router,
+    organization.router,
+    projects.router,
+    leave.router,
+    delegates.router,
+    shifts.router,
+    preferences.router,
+    calendar.router,
+    reports.router,
+    audit.router,
+    workflows.router,
+):
+    app.include_router(router)

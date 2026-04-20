@@ -1,0 +1,2805 @@
+openapi: 3.1.0
+info:
+  title: Chronos API
+  description: "Shift, leave, and sickness planning \u2014 FS Phase 1 implementation."
+  version: 0.2.0
+paths:
+  /healthz:
+    get:
+      tags:
+      - health
+      summary: Liveness
+      operationId: liveness_healthz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+                title: Response Liveness Healthz Get
+  /readyz:
+    get:
+      tags:
+      - health
+      summary: Readiness
+      operationId: readiness_readyz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+                title: Response Readiness Readyz Get
+  /auth/login:
+    post:
+      tags:
+      - auth
+      summary: Login
+      operationId: login_auth_login_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPublic'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /auth/logout:
+    post:
+      tags:
+      - auth
+      summary: Logout
+      operationId: logout_auth_logout_post
+      responses:
+        '204':
+          description: Successful Response
+  /auth/me:
+    get:
+      tags:
+      - auth
+      summary: Me
+      operationId: me_auth_me_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPublic'
+  /api/users:
+    get:
+      tags:
+      - users
+      summary: List Users
+      operationId: list_users_api_users_get
+      parameters:
+      - name: team_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Team Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserDetail'
+                title: Response List Users Api Users Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - users
+      summary: Create User
+      operationId: create_user_api_users_post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetail'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/users/{user_id}:
+    get:
+      tags:
+      - users
+      summary: Get User
+      operationId: get_user_api_users__user_id__get
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: User Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetail'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - users
+      summary: Update User
+      operationId: update_user_api_users__user_id__patch
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: User Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetail'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - users
+      summary: Deactivate
+      operationId: deactivate_api_users__user_id__delete
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: User Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/users/{user_id}/role:
+    put:
+      tags:
+      - users
+      summary: Set Role
+      operationId: set_role_api_users__user_id__role_put
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: User Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleChange'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetail'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/users/{user_id}/password:
+    put:
+      tags:
+      - users
+      summary: Set Password
+      operationId: set_password_api_users__user_id__password_put
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: User Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordUpdate'
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/users/{user_id}/export:
+    get:
+      tags:
+      - users
+      summary: Export User Data
+      operationId: export_user_data_api_users__user_id__export_get
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: User Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/departments:
+    get:
+      tags:
+      - organization
+      summary: List Departments
+      operationId: list_departments_api_departments_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/DepartmentOut'
+                type: array
+                title: Response List Departments Api Departments Get
+    post:
+      tags:
+      - organization
+      summary: Create Department
+      operationId: create_department_api_departments_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepartmentIn'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/departments/{dep_id}:
+    delete:
+      tags:
+      - organization
+      summary: Delete Department
+      operationId: delete_department_api_departments__dep_id__delete
+      parameters:
+      - name: dep_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Dep Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/teams:
+    get:
+      tags:
+      - organization
+      summary: List Teams
+      operationId: list_teams_api_teams_get
+      parameters:
+      - name: department_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Department Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TeamOut'
+                title: Response List Teams Api Teams Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - organization
+      summary: Create Team
+      operationId: create_team_api_teams_post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/teams/{team_id}:
+    delete:
+      tags:
+      - organization
+      summary: Delete Team
+      operationId: delete_team_api_teams__team_id__delete
+      parameters:
+      - name: team_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Team Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/projects:
+    get:
+      tags:
+      - projects
+      summary: List Projects
+      operationId: list_projects_api_projects_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ProjectOut'
+                type: array
+                title: Response List Projects Api Projects Get
+    post:
+      tags:
+      - projects
+      summary: Create Project
+      operationId: create_project_api_projects_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectIn'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/projects/{project_id}:
+    delete:
+      tags:
+      - projects
+      summary: Delete Project
+      operationId: delete_project_api_projects__project_id__delete
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/leave-requests:
+    get:
+      tags:
+      - leave
+      summary: List Leave
+      operationId: list_leave_api_leave_requests_get
+      parameters:
+      - name: status_filter
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status Filter
+      - name: requester_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Requester Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeaveOut'
+                title: Response List Leave Api Leave Requests Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - leave
+      summary: Create Leave
+      operationId: create_leave_api_leave_requests_post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeaveCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/leave-requests/inbox:
+    get:
+      tags:
+      - leave
+      summary: Inbox
+      operationId: inbox_api_leave_requests_inbox_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/LeaveOut'
+                type: array
+                title: Response Inbox Api Leave Requests Inbox Get
+  /api/leave-requests/delegate-suggestions:
+    get:
+      tags:
+      - leave
+      summary: Delegate Suggestions
+      operationId: delegate_suggestions_api_leave_requests_delegate_suggestions_get
+      parameters:
+      - name: start_date
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+          title: Start Date
+      - name: end_date
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+          title: End Date
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserPublic'
+                title: Response Delegate Suggestions Api Leave Requests Delegate Suggestions
+                  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/leave-requests/{lid}:
+    get:
+      tags:
+      - leave
+      summary: Get Leave
+      operationId: get_leave_api_leave_requests__lid__get
+      parameters:
+      - name: lid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Lid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - leave
+      summary: Update Draft
+      operationId: update_draft_api_leave_requests__lid__patch
+      parameters:
+      - name: lid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Lid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeaveUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/leave-requests/{lid}/submit:
+    post:
+      tags:
+      - leave
+      summary: Submit Leave
+      operationId: submit_leave_api_leave_requests__lid__submit_post
+      parameters:
+      - name: lid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Lid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/leave-requests/{lid}/approve:
+    post:
+      tags:
+      - leave
+      summary: Approve Leave
+      operationId: approve_leave_api_leave_requests__lid__approve_post
+      parameters:
+      - name: lid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Lid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/DecisionBody'
+              - type: 'null'
+              title: Payload
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/leave-requests/{lid}/reject:
+    post:
+      tags:
+      - leave
+      summary: Reject Leave
+      operationId: reject_leave_api_leave_requests__lid__reject_post
+      parameters:
+      - name: lid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Lid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/DecisionBody'
+              - type: 'null'
+              title: Payload
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/leave-requests/{lid}/cancel:
+    post:
+      tags:
+      - leave
+      summary: Cancel Leave
+      operationId: cancel_leave_api_leave_requests__lid__cancel_post
+      parameters:
+      - name: lid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Lid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/leave-requests/{lid}/override:
+    post:
+      tags:
+      - leave
+      summary: Override Leave
+      operationId: override_leave_api_leave_requests__lid__override_post
+      parameters:
+      - name: lid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Lid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OverrideBody'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/delegates:
+    get:
+      tags:
+      - delegates
+      summary: List Delegates
+      operationId: list_delegates_api_delegates_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/DelegateOut'
+                type: array
+                title: Response List Delegates Api Delegates Get
+    post:
+      tags:
+      - delegates
+      summary: Create Delegate
+      operationId: create_delegate_api_delegates_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DelegateIn'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DelegateOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/delegates/{delegate_id}:
+    delete:
+      tags:
+      - delegates
+      summary: Delete Delegate
+      operationId: delete_delegate_api_delegates__delegate_id__delete
+      parameters:
+      - name: delegate_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Delegate Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/shifts:
+    get:
+      tags:
+      - shifts
+      summary: List Shifts
+      operationId: list_shifts_api_shifts_get
+      parameters:
+      - name: team_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Team Id
+      - name: period_start
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Period Start
+      - name: period_end
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Period End
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ShiftOut'
+                title: Response List Shifts Api Shifts Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - shifts
+      summary: Create Shift
+      operationId: create_shift_api_shifts_post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShiftIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShiftOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/shifts/{sid}:
+    patch:
+      tags:
+      - shifts
+      summary: Update Shift
+      operationId: update_shift_api_shifts__sid__patch
+      parameters:
+      - name: sid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Sid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShiftUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShiftOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - shifts
+      summary: Delete Shift
+      operationId: delete_shift_api_shifts__sid__delete
+      parameters:
+      - name: sid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Sid
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/shifts/{sid}/assignments:
+    post:
+      tags:
+      - shifts
+      summary: Assign User
+      operationId: assign_user_api_shifts__sid__assignments_post
+      parameters:
+      - name: sid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Sid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignmentIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssignmentOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/shifts/{sid}/assignments/{user_id}:
+    delete:
+      tags:
+      - shifts
+      summary: Unassign User
+      operationId: unassign_user_api_shifts__sid__assignments__user_id__delete
+      parameters:
+      - name: sid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Sid
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: User Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/shifts/{sid}/substitutes:
+    get:
+      tags:
+      - shifts
+      summary: Substitutes
+      operationId: substitutes_api_shifts__sid__substitutes_get
+      parameters:
+      - name: sid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Sid
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 5
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserPublic'
+                title: Response Substitutes Api Shifts  Sid  Substitutes Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/shifts/plan:
+    post:
+      tags:
+      - shifts
+      summary: Run Plan
+      operationId: run_plan_api_shifts_plan_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanIn'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/preferences:
+    get:
+      tags:
+      - preferences
+      summary: List Preferences
+      operationId: list_preferences_api_preferences_get
+      parameters:
+      - name: user_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: User Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PreferenceOut'
+                title: Response List Preferences Api Preferences Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - preferences
+      summary: Create Preference
+      operationId: create_preference_api_preferences_post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreferenceIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreferenceOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/preferences/{pid}:
+    delete:
+      tags:
+      - preferences
+      summary: Delete Preference
+      operationId: delete_preference_api_preferences__pid__delete
+      parameters:
+      - name: pid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Pid
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/calendar/{user_id}.ics:
+    get:
+      tags:
+      - calendar
+      summary: Export Ics
+      operationId: export_ics_api_calendar__user_id__ics_get
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: User Id
+      - name: start
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Start
+      - name: end
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: End
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/reports/leave:
+    get:
+      tags:
+      - reports
+      summary: Leave Summary
+      operationId: leave_summary_api_reports_leave_get
+      parameters:
+      - name: start
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+          title: Start
+      - name: end
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+          title: End
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeaveSummaryRow'
+                title: Response Leave Summary Api Reports Leave Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/reports/leave.csv:
+    get:
+      tags:
+      - reports
+      summary: Leave Summary Csv
+      operationId: leave_summary_csv_api_reports_leave_csv_get
+      parameters:
+      - name: start
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+          title: Start
+      - name: end
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+          title: End
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/reports/sickness:
+    get:
+      tags:
+      - reports
+      summary: Sickness Summary
+      operationId: sickness_summary_api_reports_sickness_get
+      parameters:
+      - name: start
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+          title: Start
+      - name: end
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+          title: End
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeaveSummaryRow'
+                title: Response Sickness Summary Api Reports Sickness Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/reports/shifts:
+    get:
+      tags:
+      - reports
+      summary: Shifts Summary
+      operationId: shifts_summary_api_reports_shifts_get
+      parameters:
+      - name: start
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+          title: Start
+      - name: end
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+          title: End
+      - name: team_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Team Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ShiftSummaryRow'
+                title: Response Shifts Summary Api Reports Shifts Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/audit/events:
+    get:
+      tags:
+      - audit
+      summary: List Events
+      operationId: list_events_api_audit_events_get
+      parameters:
+      - name: action
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Action
+      - name: actor_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Actor Id
+      - name: since
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Since
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 200
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuditOut'
+                title: Response List Events Api Audit Events Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/audit/verify:
+    get:
+      tags:
+      - audit
+      summary: Verify Chain
+      operationId: verify_chain_api_audit_verify_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificationResult'
+  /api/workflows:
+    get:
+      tags:
+      - workflows
+      summary: List Workflows
+      operationId: list_workflows_api_workflows_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/WorkflowOut'
+                type: array
+                title: Response List Workflows Api Workflows Get
+    post:
+      tags:
+      - workflows
+      summary: Create Workflow
+      operationId: create_workflow_api_workflows_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/workflows/{workflow_id}:
+    get:
+      tags:
+      - workflows
+      summary: Get Workflow
+      operationId: get_workflow_api_workflows__workflow_id__get
+      parameters:
+      - name: workflow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workflow Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - workflows
+      summary: Update Workflow
+      operationId: update_workflow_api_workflows__workflow_id__put
+      parameters:
+      - name: workflow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workflow Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - workflows
+      summary: Delete Workflow
+      operationId: delete_workflow_api_workflows__workflow_id__delete
+      parameters:
+      - name: workflow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workflow Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    AssignmentIn:
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          title: User Id
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Note
+      type: object
+      required:
+      - user_id
+      title: AssignmentIn
+    AssignmentOut:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        shift_id:
+          type: string
+          format: uuid
+          title: Shift Id
+        user_id:
+          type: string
+          format: uuid
+          title: User Id
+        status:
+          type: string
+          title: Status
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Note
+      type: object
+      required:
+      - id
+      - shift_id
+      - user_id
+      - status
+      - note
+      title: AssignmentOut
+    AuditOut:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        seq:
+          type: integer
+          title: Seq
+        occurred_at:
+          type: string
+          format: date-time
+          title: Occurred At
+        actor_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Actor Id
+        actor_role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Actor Role
+        action:
+          type: string
+          title: Action
+        target_type:
+          type: string
+          title: Target Type
+        target_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Target Id
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason
+        before_state:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Before State
+        after_state:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: After State
+        prev_hash:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Prev Hash
+        row_hash:
+          type: string
+          title: Row Hash
+      type: object
+      required:
+      - id
+      - seq
+      - occurred_at
+      - actor_id
+      - actor_role
+      - action
+      - target_type
+      - target_id
+      - reason
+      - before_state
+      - after_state
+      - prev_hash
+      - row_hash
+      title: AuditOut
+    DecisionBody:
+      properties:
+        reason:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Reason
+      type: object
+      title: DecisionBody
+    DelegateIn:
+      properties:
+        principal_id:
+          type: string
+          format: uuid
+          title: Principal Id
+        delegate_user_id:
+          type: string
+          format: uuid
+          title: Delegate User Id
+        valid_from:
+          type: string
+          format: date
+          title: Valid From
+        valid_to:
+          type: string
+          format: date
+          title: Valid To
+      type: object
+      required:
+      - principal_id
+      - delegate_user_id
+      - valid_from
+      - valid_to
+      title: DelegateIn
+    DelegateOut:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        principal_id:
+          type: string
+          format: uuid
+          title: Principal Id
+        delegate_user_id:
+          type: string
+          format: uuid
+          title: Delegate User Id
+        valid_from:
+          type: string
+          format: date
+          title: Valid From
+        valid_to:
+          type: string
+          format: date
+          title: Valid To
+      type: object
+      required:
+      - id
+      - principal_id
+      - delegate_user_id
+      - valid_from
+      - valid_to
+      title: DelegateOut
+    DepartmentIn:
+      properties:
+        name:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Name
+      type: object
+      required:
+      - name
+      title: DepartmentIn
+    DepartmentOut:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+      type: object
+      required:
+      - id
+      - name
+      title: DepartmentOut
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    LeaveCreate:
+      properties:
+        type:
+          $ref: '#/components/schemas/LeaveType'
+          default: VACATION
+        start_date:
+          type: string
+          format: date
+          title: Start Date
+        end_date:
+          type: string
+          format: date
+          title: End Date
+        reason:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Reason
+        approver_delegate_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Approver Delegate Id
+        approver_tl_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Approver Tl Id
+        approver_hr_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Approver Hr Id
+        has_certificate:
+          type: boolean
+          title: Has Certificate
+          default: false
+      type: object
+      required:
+      - start_date
+      - end_date
+      title: LeaveCreate
+    LeaveOut:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        requester_id:
+          type: string
+          format: uuid
+          title: Requester Id
+        approver_delegate_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Approver Delegate Id
+        approver_tl_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Approver Tl Id
+        approver_hr_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Approver Hr Id
+        type:
+          type: string
+          title: Type
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason
+        start_date:
+          type: string
+          format: date
+          title: Start Date
+        end_date:
+          type: string
+          format: date
+          title: End Date
+        status:
+          type: string
+          title: Status
+        has_certificate:
+          type: boolean
+          title: Has Certificate
+        submitted_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Submitted At
+        decided_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Decided At
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - requester_id
+      - approver_delegate_id
+      - approver_tl_id
+      - approver_hr_id
+      - type
+      - reason
+      - start_date
+      - end_date
+      - status
+      - has_certificate
+      - submitted_at
+      - decided_at
+      - created_at
+      - updated_at
+      title: LeaveOut
+    LeaveSummaryRow:
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          title: User Id
+        user_name:
+          type: string
+          title: User Name
+        vacation_days:
+          type: integer
+          title: Vacation Days
+        sickness_days:
+          type: integer
+          title: Sickness Days
+        other_days:
+          type: integer
+          title: Other Days
+      type: object
+      required:
+      - user_id
+      - user_name
+      - vacation_days
+      - sickness_days
+      - other_days
+      title: LeaveSummaryRow
+    LeaveType:
+      type: string
+      enum:
+      - VACATION
+      - SICK
+      - OTHER
+      title: LeaveType
+    LeaveUpdate:
+      properties:
+        start_date:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Start Date
+        end_date:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: End Date
+        reason:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Reason
+        approver_delegate_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Approver Delegate Id
+        approver_tl_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Approver Tl Id
+        approver_hr_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Approver Hr Id
+        has_certificate:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Has Certificate
+      type: object
+      title: LeaveUpdate
+    LoginRequest:
+      properties:
+        username:
+          type: string
+          title: Username
+        password:
+          type: string
+          title: Password
+      type: object
+      required:
+      - username
+      - password
+      title: LoginRequest
+    OverrideBody:
+      properties:
+        reason:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: Reason
+      type: object
+      required:
+      - reason
+      title: OverrideBody
+    PasswordUpdate:
+      properties:
+        new_password:
+          type: string
+          minLength: 8
+          title: New Password
+      type: object
+      required:
+      - new_password
+      title: PasswordUpdate
+    PlanIn:
+      properties:
+        team_id:
+          type: string
+          format: uuid
+          title: Team Id
+        period_start:
+          type: string
+          format: date
+          title: Period Start
+        period_end:
+          type: string
+          format: date
+          title: Period End
+        required_per_shift:
+          type: integer
+          maximum: 20.0
+          minimum: 1.0
+          title: Required Per Shift
+          default: 1
+        holidays:
+          items:
+            type: string
+            format: date
+          type: array
+          title: Holidays
+      type: object
+      required:
+      - team_id
+      - period_start
+      - period_end
+      title: PlanIn
+    PlanOut:
+      properties:
+        shifts_created:
+          type: integer
+          title: Shifts Created
+        assignments_created:
+          type: integer
+          title: Assignments Created
+        unassigned:
+          items:
+            type: string
+          type: array
+          title: Unassigned
+      type: object
+      required:
+      - shifts_created
+      - assignments_created
+      - unassigned
+      title: PlanOut
+    PreferenceIn:
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          title: User Id
+        preference_type:
+          $ref: '#/components/schemas/PreferenceType'
+        payload:
+          additionalProperties: true
+          type: object
+          title: Payload
+        effective_from:
+          type: string
+          format: date
+          title: Effective From
+        effective_to:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Effective To
+      type: object
+      required:
+      - user_id
+      - preference_type
+      - effective_from
+      title: PreferenceIn
+    PreferenceOut:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        user_id:
+          type: string
+          format: uuid
+          title: User Id
+        preference_type:
+          type: string
+          title: Preference Type
+        payload:
+          additionalProperties: true
+          type: object
+          title: Payload
+        effective_from:
+          type: string
+          format: date
+          title: Effective From
+        effective_to:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Effective To
+      type: object
+      required:
+      - id
+      - user_id
+      - preference_type
+      - payload
+      - effective_from
+      - effective_to
+      title: PreferenceOut
+    PreferenceType:
+      type: string
+      enum:
+      - SHIFT_TIME
+      - DAY_OFF
+      - PROJECT
+      title: PreferenceType
+    ProjectIn:
+      properties:
+        code:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Code
+        name:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Name
+        description:
+          anyOf:
+          - type: string
+            maxLength: 1000
+          - type: 'null'
+          title: Description
+      type: object
+      required:
+      - code
+      - name
+      title: ProjectIn
+    ProjectOut:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        code:
+          type: string
+          title: Code
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      type: object
+      required:
+      - id
+      - code
+      - name
+      - description
+      title: ProjectOut
+    Role:
+      type: string
+      enum:
+      - employee
+      - team_lead
+      - hr
+      - admin
+      title: Role
+    RoleChange:
+      properties:
+        role:
+          $ref: '#/components/schemas/Role'
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason
+      type: object
+      required:
+      - role
+      title: RoleChange
+    ShiftIn:
+      properties:
+        team_id:
+          type: string
+          format: uuid
+          title: Team Id
+        service_date:
+          type: string
+          format: date
+          title: Service Date
+        shift_type:
+          $ref: '#/components/schemas/ShiftType'
+        start_time:
+          type: string
+          format: time
+          title: Start Time
+        end_time:
+          type: string
+          format: time
+          title: End Time
+        required_headcount:
+          type: integer
+          maximum: 20.0
+          minimum: 1.0
+          title: Required Headcount
+          default: 1
+        project_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Project Id
+      type: object
+      required:
+      - team_id
+      - service_date
+      - shift_type
+      - start_time
+      - end_time
+      title: ShiftIn
+    ShiftOut:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        team_id:
+          type: string
+          format: uuid
+          title: Team Id
+        service_date:
+          type: string
+          format: date
+          title: Service Date
+        shift_type:
+          type: string
+          title: Shift Type
+        start_time:
+          type: string
+          format: time
+          title: Start Time
+        end_time:
+          type: string
+          format: time
+          title: End Time
+        required_headcount:
+          type: integer
+          title: Required Headcount
+        project_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Project Id
+        assignments:
+          items:
+            $ref: '#/components/schemas/AssignmentOut'
+          type: array
+          title: Assignments
+          default: []
+      type: object
+      required:
+      - id
+      - team_id
+      - service_date
+      - shift_type
+      - start_time
+      - end_time
+      - required_headcount
+      - project_id
+      title: ShiftOut
+    ShiftSummaryRow:
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          title: User Id
+        user_name:
+          type: string
+          title: User Name
+        early_count:
+          type: integer
+          title: Early Count
+        late_count:
+          type: integer
+          title: Late Count
+        other_count:
+          type: integer
+          title: Other Count
+      type: object
+      required:
+      - user_id
+      - user_name
+      - early_count
+      - late_count
+      - other_count
+      title: ShiftSummaryRow
+    ShiftType:
+      type: string
+      enum:
+      - EARLY
+      - LATE
+      - OTHER
+      title: ShiftType
+    ShiftUpdate:
+      properties:
+        start_time:
+          anyOf:
+          - type: string
+            format: time
+          - type: 'null'
+          title: Start Time
+        end_time:
+          anyOf:
+          - type: string
+            format: time
+          - type: 'null'
+          title: End Time
+        required_headcount:
+          anyOf:
+          - type: integer
+            maximum: 20.0
+            minimum: 1.0
+          - type: 'null'
+          title: Required Headcount
+        project_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Project Id
+      type: object
+      title: ShiftUpdate
+    TeamIn:
+      properties:
+        name:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Name
+        department_id:
+          type: string
+          format: uuid
+          title: Department Id
+      type: object
+      required:
+      - name
+      - department_id
+      title: TeamIn
+    TeamOut:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        department_id:
+          type: string
+          format: uuid
+          title: Department Id
+      type: object
+      required:
+      - id
+      - name
+      - department_id
+      title: TeamOut
+    UserCreate:
+      properties:
+        email:
+          type: string
+          title: Email
+        password:
+          type: string
+          minLength: 8
+          title: Password
+        first_name:
+          anyOf:
+          - type: string
+            maxLength: 120
+          - type: 'null'
+          title: First Name
+        last_name:
+          anyOf:
+          - type: string
+            maxLength: 120
+          - type: 'null'
+          title: Last Name
+        role:
+          $ref: '#/components/schemas/Role'
+          default: employee
+        locale:
+          type: string
+          title: Locale
+          default: en
+        time_zone:
+          type: string
+          title: Time Zone
+          default: UTC
+        department_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Department Id
+        team_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Team Id
+      type: object
+      required:
+      - email
+      - password
+      title: UserCreate
+    UserDetail:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        email:
+          type: string
+          title: Email
+        first_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: First Name
+        last_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Name
+        role:
+          type: string
+          title: Role
+        locale:
+          type: string
+          title: Locale
+        time_zone:
+          type: string
+          title: Time Zone
+        department_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Department Id
+        team_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Team Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - email
+      - role
+      - locale
+      - time_zone
+      - created_at
+      - updated_at
+      title: UserDetail
+    UserPublic:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        email:
+          type: string
+          title: Email
+        first_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: First Name
+        last_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Name
+        role:
+          type: string
+          title: Role
+        locale:
+          type: string
+          title: Locale
+        time_zone:
+          type: string
+          title: Time Zone
+        department_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Department Id
+        team_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Team Id
+      type: object
+      required:
+      - id
+      - email
+      - role
+      - locale
+      - time_zone
+      title: UserPublic
+    UserUpdate:
+      properties:
+        first_name:
+          anyOf:
+          - type: string
+            maxLength: 120
+          - type: 'null'
+          title: First Name
+        last_name:
+          anyOf:
+          - type: string
+            maxLength: 120
+          - type: 'null'
+          title: Last Name
+        locale:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Locale
+        time_zone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Time Zone
+        department_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Department Id
+        team_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Team Id
+      type: object
+      title: UserUpdate
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    VerificationResult:
+      properties:
+        ok:
+          type: boolean
+          title: Ok
+        checked:
+          type: integer
+          title: Checked
+        first_bad_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: First Bad Id
+      type: object
+      required:
+      - ok
+      - checked
+      - first_bad_id
+      title: VerificationResult
+    WorkflowCreate:
+      properties:
+        name:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Name
+        description:
+          anyOf:
+          - type: string
+            maxLength: 1000
+          - type: 'null'
+          title: Description
+        definition:
+          additionalProperties: true
+          type: object
+          title: Definition
+      type: object
+      required:
+      - name
+      title: WorkflowCreate
+    WorkflowOut:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        definition:
+          additionalProperties: true
+          type: object
+          title: Definition
+        version:
+          type: integer
+          title: Version
+        created_by:
+          type: string
+          format: uuid
+          title: Created By
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - name
+      - description
+      - definition
+      - version
+      - created_by
+      - created_at
+      - updated_at
+      title: WorkflowOut
+    WorkflowUpdate:
+      properties:
+        name:
+          anyOf:
+          - type: string
+            maxLength: 200
+            minLength: 1
+          - type: 'null'
+          title: Name
+        description:
+          anyOf:
+          - type: string
+            maxLength: 1000
+          - type: 'null'
+          title: Description
+        definition:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Definition
+      type: object
+      title: WorkflowUpdate

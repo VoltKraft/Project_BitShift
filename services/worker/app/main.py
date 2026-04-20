@@ -2,11 +2,15 @@ import logging
 import signal
 import time
 
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine
 
 from app.config import settings
+from app.jobs import substitution
 
-logging.basicConfig(level=settings.log_level.upper(), format="%(asctime)s %(levelname)s %(name)s %(message)s")
+logging.basicConfig(
+    level=settings.log_level.upper(),
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
 log = logging.getLogger("chronos.worker")
 
 engine = create_engine(settings.database_url, pool_pre_ping=True, future=True)
@@ -21,14 +25,11 @@ def _handle_signal(signum: int, _frame: object) -> None:
 
 
 def poll_once() -> int:
-    """Poll the jobs table for pending work. Returns number of jobs processed.
-
-    Placeholder: the jobs table does not exist yet. The worker currently proves DB
-    reachability and exits the poll loop; real job pickup lands with the scheduling engine.
-    """
-    with engine.connect() as conn:
-        conn.execute(text("SELECT 1"))
-    return 0
+    """Run all scheduled work and return the number of side-effects performed."""
+    processed = 0
+    with engine.begin() as conn:
+        processed += substitution.run(conn)
+    return processed
 
 
 def main() -> None:
@@ -39,7 +40,7 @@ def main() -> None:
         try:
             processed = poll_once()
             if processed:
-                log.info("processed %d job(s)", processed)
+                log.info("processed %d event(s)", processed)
         except Exception:
             log.exception("poll cycle failed")
         time.sleep(settings.job_poll_interval_seconds)

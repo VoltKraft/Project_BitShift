@@ -13,5 +13,15 @@ class Settings(BaseSettings):
     session_max_age_seconds: int = Field(60 * 60 * 8, alias="SESSION_MAX_AGE_SECONDS")
     log_level: str = Field("info", alias="LOG_LEVEL")
 
+    smtp_enabled: bool = Field(False, alias="SMTP_ENABLED")
+    smtp_host: str = Field("localhost", alias="SMTP_HOST")
+    smtp_port: int = Field(25, alias="SMTP_PORT")
+    smtp_username: str | None = Field(None, alias="SMTP_USERNAME")
+    smtp_password: str | None = Field(None, alias="SMTP_PASSWORD")
+    smtp_from: str = Field("chronos@localhost", alias="SMTP_FROM")
+    smtp_use_tls: bool = Field(False, alias="SMTP_USE_TLS")
+
+    public_url: str = Field("http://localhost", alias="PUBLIC_URL")
+
 
 settings = Settings()

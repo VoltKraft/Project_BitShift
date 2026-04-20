@@ -1,18 +1,76 @@
-import { Link, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useAuth, isHrOrAdmin, isTlOrAbove } from "./auth/AuthProvider";
+
+type NavItem = { to: string; label: string; show: boolean };
 
 export default function App() {
+  const auth = useAuth();
+  const navigate = useNavigate();
+  const user = auth.status === "authenticated" ? auth.user : null;
+
+  const items: NavItem[] = [
+    { to: "/dashboard", label: "Dashboard", show: !!user },
+    { to: "/leave", label: "My leave", show: !!user },
+    { to: "/leave/new", label: "Request leave", show: !!user },
+    { to: "/inbox", label: "Approvals", show: !!user },
+    { to: "/shifts", label: "Shifts", show: !!user },
+    { to: "/preferences", label: "Preferences", show: !!user },
+    { to: "/planner", label: "Planner", show: isTlOrAbove(user) },
+    { to: "/reports", label: "Reports", show: isTlOrAbove(user) },
+    { to: "/users", label: "Users", show: isHrOrAdmin(user) },
+    { to: "/audit", label: "Audit", show: isHrOrAdmin(user) },
+    { to: "/workflows", label: "Workflows", show: isHrOrAdmin(user) },
+  ];
+
+  const handleLogout = async () => {
+    await auth.logout();
+    navigate("/login", { replace: true });
+  };
+
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif" }}>
-      <header style={{ padding: "12px 20px", borderBottom: "1px solid #ddd", display: "flex", gap: 16 }}>
-        <strong>Chronos</strong>
-        <nav style={{ display: "flex", gap: 12 }}>
-          <Link to="/workflows">Workflows</Link>
-          <Link to="/login">Login</Link>
-        </nav>
+    <div className="app-shell">
+      <header className="app-header">
+        <div className="brand">
+          <strong>Chronos</strong>
+          <span className="brand-sub">Shift & leave planning</span>
+        </div>
+        {user && (
+          <nav className="main-nav" aria-label="Primary">
+            {items
+              .filter((it) => it.show)
+              .map((it) => (
+                <NavLink
+                  key={it.to}
+                  to={it.to}
+                  className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}
+                >
+                  {it.label}
+                </NavLink>
+              ))}
+          </nav>
+        )}
+        <div className="user-pill">
+          {user ? (
+            <>
+              <span className="user-email">{user.email}</span>
+              <span className="user-role">{user.role}</span>
+              <button className="link-button" onClick={handleLogout}>
+                Sign out
+              </button>
+            </>
+          ) : (
+            <NavLink to="/login" className="nav-link">
+              Sign in
+            </NavLink>
+          )}
+        </div>
       </header>
-      <main style={{ padding: 20 }}>
+      <main className="app-main" id="main">
         <Outlet />
       </main>
+      <footer className="app-footer">
+        <small>Chronos Phase 1 — © Chronos contributors · AGPL-3.0-only</small>
+      </footer>
     </div>
   );
 }

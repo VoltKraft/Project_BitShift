@@ -1,35 +1,72 @@
 import { useState } from "react";
-import { api } from "../api/client";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { ApiError } from "../api/client";
+import { useAuth } from "../auth/AuthProvider";
 
 export default function Login() {
-  const [username, setUsername] = useState("");
+  const auth = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  if (auth.status === "authenticated") {
+    const dest = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? "/dashboard";
+    return <Navigate to={dest} replace />;
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setMessage(null);
+    setError(null);
+    setSubmitting(true);
     try {
-      const user = await api.login(username, password);
-      setMessage(`Signed in as ${user.email} (${user.role})`);
+      await auth.login(email.trim().toLowerCase(), password);
+      navigate("/dashboard", { replace: true });
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "login failed");
+      if (err instanceof ApiError) setError(err.detail);
+      else setError("Login failed");
+    } finally {
+      setSubmitting(false);
     }
   }
 
   return (
-    <form onSubmit={onSubmit} style={{ display: "grid", gap: 8, maxWidth: 320 }}>
-      <h1>Login</h1>
-      <label>
-        Email
-        <input type="email" value={username} onChange={(e) => setUsername(e.target.value)} required />
-      </label>
-      <label>
-        Password
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-      </label>
-      <button type="submit">Sign in</button>
-      {message && <p>{message}</p>}
-    </form>
+    <div className="login-page">
+      <div className="card">
+        <h1>Sign in</h1>
+        <form className="form" onSubmit={onSubmit}>
+          <label>
+            Email
+            <input
+              type="email"
+              autoComplete="username"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </label>
+          <label>
+            Password
+            <input
+              type="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </label>
+          <button type="submit" disabled={submitting}>
+            {submitting ? "Signing in…" : "Sign in"}
+          </button>
+          {error && (
+            <div className="error" role="alert">
+              {error}
+            </div>
+          )}
+        </form>
+      </div>
+    </div>
   );
 }

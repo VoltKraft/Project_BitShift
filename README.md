@@ -76,7 +76,11 @@ cd Chronos/infrastructure/docker
 # Build + start all five services (Traefik, frontend, api, worker, db)
 ./up.sh up --build
 
-# Create the first admin (prompted for password)
+# Seed a realistic demo dataset (includes an admin with password `admin-pass-1`)
+docker compose -f compose.dev.yaml --env-file .env.dev exec api \
+  python -m app.cli seed-demo
+
+# Or create a single admin manually (prompted for password)
 docker compose -f compose.dev.yaml --env-file .env.dev exec api \
   python -m app.cli create-admin --email admin@chronos.local
 
@@ -85,6 +89,18 @@ curl -i http://localhost/healthz
 ```
 
 Once the stack is up, the SPA is at <http://localhost/>. Traefik routes `/api/*`, `/auth/*`, `/healthz`, `/readyz` to the API; everything else goes to the frontend.
+
+### Useful CLI subcommands
+
+Run them via `docker compose … exec api python -m app.cli <cmd>`:
+
+| Command | Purpose |
+| --- | --- |
+| `create-admin --email ...` | Bootstrap a superuser. |
+| `seed-demo` | Load a full demo org (1 dept, 1 team, 6 users, preferences, draft leave). |
+| `set-role --email ... --role hr` | Promote/demote a user. |
+| `verify-audit` | Recompute the audit hash chain; non-zero exit on tamper. |
+| `dump-openapi --output docs/api/openapi/api/openapi.yaml` | Refresh the committed OpenAPI contract. |
 
 For the full inventory of containers, images, and endpoints see [`docs/architecture.md`](docs/architecture.md#implementation-status-phase-1).
 
@@ -133,16 +149,21 @@ For full license text, see:
 
 ## 🧩 Project Goals (Roadmap Snapshot)
 
-- [ ] Full shift planning workflow  
-- [ ] Vacation request workflow  
-- [ ] Approval chains (representative → team lead → HR)  
-- [ ] Rule-based scheduling engine  
-- [ ] Employee preferences & constraints  
-- [ ] Audit logs for all actions  
-- [ ] Multi-tenant support  
-- [ ] OpenID Connect (OIDC) integration  
-- [ ] Docker-based deployment  
-- [ ] Kubernetes-ready architecture  
+- [x] Full shift planning workflow (rule-based round-robin planner)
+- [x] Vacation request workflow
+- [x] Approval chains (delegate → team lead → HR)
+- [x] Rule-based scheduling engine (preference- & availability-aware)
+- [x] Employee preferences & constraints
+- [x] Audit logs for all actions (SHA-256 hash chain, verifiable)
+- [x] Sickness workflow (F13) + substitution flagging (F14)
+- [x] Reporting & CSV/ICS exports (F9, F11, F15)
+- [x] GDPR data export (F7 §7.1)
+- [x] Role-specific SPA (Employee, Team Lead, HR, Admin)
+- [x] Docker-based deployment (5-container compose stack)
+- [ ] OpenID Connect (OIDC) integration
+- [ ] Multi-tenant support
+- [ ] Kubernetes-ready architecture
+- [ ] MILP-based optimal shift solver
 
 *(Roadmap will move into GitHub Projects later.)*
 
